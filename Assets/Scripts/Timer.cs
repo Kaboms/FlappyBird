@@ -15,11 +15,10 @@ public class Timer : MonoBehaviour
 
 	public bool EmitOnStart { get; private set; }
 
-
-	private UnityEvent _TimerFinish = new UnityEvent();
-
+	private UnityEvent _timerFinish = new UnityEvent();
 
 	private float PassedTime = 0;
+	//--------------------------------------------------------------------------
 
 	public void Init(float emitTime, bool emitOnStart = false, EmitType type = EmitType.Periodic)
 	{
@@ -27,6 +26,7 @@ public class Timer : MonoBehaviour
 		Type = type;
 		EmitOnStart = emitOnStart;
 	}
+	//--------------------------------------------------------------------------
 
 	private void Update()
 	{
@@ -40,6 +40,7 @@ public class Timer : MonoBehaviour
 			}
 		}
 	}
+	//--------------------------------------------------------------------------
 
 	public void StartTimer()
 	{
@@ -49,16 +50,19 @@ public class Timer : MonoBehaviour
 		if (EmitOnStart)
 			Emit();
 	}
+	//--------------------------------------------------------------------------
 
 	public void StopTimer()
 	{
 		Started = false;
 	}
+	//--------------------------------------------------------------------------
 
 	public void AddListener(UnityAction callback)
 	{
-		_TimerFinish.AddListener(callback);
+		_timerFinish.AddListener(callback);
 	}
+	//--------------------------------------------------------------------------
 
 	private void Emit()
 	{
@@ -67,6 +71,8 @@ public class Timer : MonoBehaviour
 		if (Type == EmitType.OneShot)
 			StopTimer();
 
-		_TimerFinish?.Invoke();
+		_timerFinish?.Invoke();
 	}
+	//--------------------------------------------------------------------------
+
 }
