@@ -29,7 +29,7 @@ public class BirdController : MonoBehaviour
 	private AudioSource _audioSource;
 
 	private bool _isJump;
-	private bool _Live;
+	private bool _alive;
 
 	private bool _gameStart;
 
@@ -57,7 +57,7 @@ public class BirdController : MonoBehaviour
 
 		Panel.SetActive(false);
 
-		_Live = true;
+		_alive = true;
 		_gameStart = false;
 		transform.position = Vector3.zero;
 
@@ -70,21 +70,23 @@ public class BirdController : MonoBehaviour
 		{
 			_velocity = new Vector2(Speed, 0);
 			_eulerAngles = new Vector3(0, 0, 45);
-			_audioSource.Play();
-
-			_isJump = true;
 
 			if (!_gameStart)
 			{
 				_gameStart = true;
 				GameStart?.Invoke();
 			}
+
+			_isJump = true;
+
+			if (_alive)
+				_audioSource.Play();
 		}
 
 	}
 	private void FixedUpdate()
 	{
-		if (_Live)
+		if (_alive)
 		{
 			if (_gameStart)
 			{
@@ -131,7 +133,7 @@ public class BirdController : MonoBehaviour
 
 	private void GameOver()
 	{
-		_Live = false;
+		_alive = false;
 		_rigidbody.velocity = Vector2.zero;
 
 		Panel.SetActive(true);
