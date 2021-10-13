@@ -17,9 +17,6 @@ public class Spawner : MonoBehaviour
 
 	private Camera _camera;
 
-	private Timer _spawnWallTimer;
-	private Timer _cloudTimer;
-
 	// Minimal camera heigth point at world space
 	private float _minCameraHeigth;
 	// Maximum camera heigth point at world space
@@ -37,20 +34,12 @@ public class Spawner : MonoBehaviour
 		_minCameraHeigth = _camera.ScreenToWorldPoint(new Vector2(0, 0)).y;
 		_maxCameraHeigth = -_minCameraHeigth;
 		_cameraHeigth = Mathf.Abs(_minCameraHeigth) + Mathf.Abs(_maxCameraHeigth);
-
-		_spawnWallTimer = gameObject.AddComponent<Timer>();
-		_spawnWallTimer.Init(2.5f, true);
-		_spawnWallTimer.AddListener(OnSpawnWallTimer);
-
-		_cloudTimer = gameObject.AddComponent<Timer>();
-		_cloudTimer.Init(3);
-		_cloudTimer.AddListener(OnCloudTimer);
 	}
 
 	private void Start()
 	{
-		_spawnWallTimer.StartTimer();
-		_cloudTimer.StartTimer();
+		StartCoroutine(SpawnWallCoroutine());
+		StartCoroutine(CloudCoroutine());
 	}
 
 	private void CreateWall(float factor, float heigth, Vector2 spawnPosition)
@@ -67,33 +56,43 @@ public class Spawner : MonoBehaviour
 		wallObj.transform.position = spawnPosition;
 	}
 
-	private void OnSpawnWallTimer()
+	private IEnumerator SpawnWallCoroutine()
 	{
-		Vector2 spawnPosition = _camera.ScreenToWorldPoint(new Vector2(_camera.pixelWidth, _camera.pixelHeight));
+		while (true)
+		{
+			Vector2 spawnPosition = _camera.ScreenToWorldPoint(new Vector2(_camera.pixelWidth, _camera.pixelHeight));
 
-		float heigth1 = Random.Range(_heightRestriction, 1 - _holeHeight - _heightRestriction);
-		float heigth2 = 1 - _holeHeight - heigth1;
+			float heigth1 = Random.Range(_heightRestriction, 1 - _holeHeight - _heightRestriction);
+			float heigth2 = 1 - _holeHeight - heigth1;
 
-		CreateWall(1, heigth1, spawnPosition);
-		CreateWall(-1, heigth2, spawnPosition);
+			CreateWall(1, heigth1, spawnPosition);
+			CreateWall(-1, heigth2, spawnPosition);
 
-		GameObject gateObj = Instantiate(GatePrefab);
-		gateObj.transform.localScale = new Vector3(1, _cameraHeigth);
+			GameObject gateObj = Instantiate(GatePrefab);
+			gateObj.transform.localScale = new Vector3(1, _cameraHeigth);
 
-		spawnPosition.y -= gateObj.transform.localScale.y / 2;
-		spawnPosition.x += gateObj.transform.localScale.x + WallPrefab.transform.localScale.x;
-		gateObj.transform.position = spawnPosition;
+			spawnPosition.y -= gateObj.transform.localScale.y / 2;
+			spawnPosition.x += gateObj.transform.localScale.x + WallPrefab.transform.localScale.x;
+			gateObj.transform.position = spawnPosition;
+
+			yield return new WaitForSeconds(2.5f);
+		}
 	}
 
-	private void OnCloudTimer()
+	private IEnumerator CloudCoroutine()
 	{
-		Vector2 spawnPosition = _camera.ScreenToWorldPoint(new Vector2(_camera.pixelWidth * 1.25f, 0));
+		while (true)
+		{
+			Vector2 spawnPosition = _camera.ScreenToWorldPoint(new Vector2(_camera.pixelWidth * 1.25f, 0));
 
-		GameObject cloudObj = Instantiate(CloudPrefab);
-		cloudObj.GetComponent<SpriteRenderer>().sprite = CloudSprites[Random.Range((int)0, (int)CloudSprites.Length - 1)];
+			GameObject cloudObj = Instantiate(CloudPrefab);
+			cloudObj.GetComponent<SpriteRenderer>().sprite = CloudSprites[Random.Range((int)0, (int)CloudSprites.Length - 1)];
 
-		spawnPosition.y = Random.Range(_maxCameraHeigth * 0.3f, _maxCameraHeigth);
+			spawnPosition.y = Random.Range(_maxCameraHeigth * 0.3f, _maxCameraHeigth);
 
-		cloudObj.transform.position = spawnPosition;
+			cloudObj.transform.position = spawnPosition;
+
+			yield return new WaitForSeconds(3f);
+		}
 	}
 }
